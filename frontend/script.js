@@ -319,18 +319,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitButton.innerHTML = '<span>Submitting...</span>';
             }
             
+            // Get API base URL (default to current origin if not set)
+            const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+            const apiUrl = `${apiBaseUrl}/api/enquiries`;
+            
+            // Warn if still using Render URL (should be Railway)
+            if (apiBaseUrl.includes('render.com') || apiBaseUrl.includes('onrender.com')) {
+                console.warn('⚠️ API URL is still pointing to Render. Please update to your Railway backend URL in index.html');
+            }
+            
             try {
-                // Get API base URL (default to current origin if not set)
-                const apiBaseUrl = window.API_BASE_URL || window.location.origin;
-                const apiUrl = `${apiBaseUrl}/api/enquiries`;
+                console.log('Submitting enquiry to:', apiUrl);
+                console.log('Form data:', data);
                 
                 // Send data to backend
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(data),
+                    mode: 'cors' // Explicitly set CORS mode
                 });
                 
                 if (response.ok) {
@@ -353,7 +363,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Error submitting enquiry:', error);
-                showNotification('Network error. Please check your connection and try again.', 'error');
+                console.error('API URL attempted:', apiUrl);
+                console.error('Error details:', {
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
+                
+                // More specific error messages
+                let errorMessage = 'Network error. Please check your connection and try again.';
+                if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                    errorMessage = `Cannot connect to server at ${apiUrl}. Please check: 1) Backend is running on Railway, 2) API URL is correct in index.html (should be your Railway URL, not Render), 3) Backend allows CORS from your frontend domain.`;
+                } else if (error.message.includes('CORS')) {
+                    errorMessage = 'CORS error. Please check backend CORS configuration allows requests from your frontend domain.';
+                } else {
+                    errorMessage = `Error: ${error.message}`;
+                }
+                
+                // Additional warning if using Render URL
+                if (apiBaseUrl.includes('render.com') || apiBaseUrl.includes('onrender.com')) {
+                    errorMessage += ' (Note: API URL is still pointing to Render - update to Railway URL in index.html)';
+                }
+                
+                // Additional warning if using Render URL
+                if (apiBaseUrl.includes('render.com') || apiBaseUrl.includes('onrender.com')) {
+                    errorMessage += ' (Note: API URL is still pointing to Render - update to Railway URL in index.html)';
+                }
+                
+                showNotification(errorMessage, 'error');
             } finally {
                 // Re-enable submit button
                 if (submitButton) {
