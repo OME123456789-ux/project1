@@ -297,8 +297,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Enquiry form now submits directly to Formspree via HTML form action/method.
-    // Do not intercept with fetch; let the browser submit normally.
+    // Enquiry form: submit to backend API
+    if (enquiryForm) {
+        enquiryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = new FormData(enquiryForm);
+            const data = {
+                name: formData.get('name'),
+                phone: formData.get('phone'),
+                inquiry: formData.get('inquiry'),
+                otherReason: formData.get('otherReason') || null
+            };
+            
+            // Get submit button and disable it during submission
+            const submitButton = enquiryForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton ? submitButton.innerHTML : '';
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span>Submitting...</span>';
+            }
+            
+            try {
+                // Get API base URL (default to current origin if not set)
+                const apiBaseUrl = window.API_BASE_URL || window.location.origin;
+                const apiUrl = `${apiBaseUrl}/api/enquiries`;
+                
+                // Send data to backend
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showNotification('Thank you! Your enquiry has been submitted successfully. We will contact you soon.', 'success');
+                    enquiryForm.reset();
+                    
+                    // Reset "Other" reason field visibility
+                    const otherReasonGroup = enquiryForm.querySelector('#otherReasonGroup');
+                    const otherReasonField = enquiryForm.querySelector('#otherReason');
+                    if (otherReasonGroup) {
+                        otherReasonGroup.style.display = 'none';
+                        if (otherReasonField) {
+                            otherReasonField.required = false;
+                        }
+                    }
+                } else {
+                    const errorData = await response.json().catch(() => ({ message: 'Failed to submit enquiry' }));
+                    showNotification(errorData.message || 'Failed to submit enquiry. Please try again.', 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting enquiry:', error);
+                showNotification('Network error. Please check your connection and try again.', 'error');
+            } finally {
+                // Re-enable submit button
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
+            }
+        });
+    }
 });
 
 // Notification function

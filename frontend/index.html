@@ -556,7 +556,7 @@
             <div class="contact-content">
                 <div class="contact-form-wrapper" style="margin-bottom: 3rem;">
                     <h3 style="font-family: 'Playfair Display', serif; font-size: clamp(1.75rem, 2.5vw, 2.25rem); color: var(--text-dark); margin-bottom: 2rem; text-align: center; font-weight: 700;">Enquiry Form</h3>
-                    <form class="contact-form" id="enquiryForm" action="https://formspree.io/f/xkooqyna" method="POST">
+                    <form class="contact-form" id="enquiryForm">
                         <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" id="name" name="name" required placeholder="Enter your full name">
@@ -648,8 +648,9 @@
         </div>
     </footer>
 
-    <!-- API Configuration: point frontend to Render backend -->
+    <!-- API Configuration: point frontend to Railway backend -->
     <script>
+        // Update this URL with your Railway backend URL
         window.API_BASE_URL = 'https://sri-sathya-sai-gurukul-academy.onrender.com';
     </script>
     <script src="script.js"></script>
