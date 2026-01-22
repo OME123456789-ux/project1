@@ -1,0 +1,40 @@
+# Maven
+target/
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Test files
+src/test/
+
+# Documentation
+*.md
+HELP.md
+
+# Frontend files (if not needed in backend)
+../frontend/
+
+# Database files
+../database/
+
