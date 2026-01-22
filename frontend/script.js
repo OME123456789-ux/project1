@@ -323,11 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const apiBaseUrl = window.API_BASE_URL || window.location.origin;
             const apiUrl = `${apiBaseUrl}/api/enquiries`;
             
-            // Warn if still using Render URL (should be Railway)
-            if (apiBaseUrl.includes('render.com') || apiBaseUrl.includes('onrender.com')) {
-                console.warn('⚠️ API URL is still pointing to Render. Please update to your Railway backend URL in index.html');
-            }
-            
             try {
                 console.log('Submitting enquiry to:', apiUrl);
                 console.log('Form data:', data);
@@ -373,16 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 // More specific error messages
                 let errorMessage = 'Network error. Please check your connection and try again.';
                 if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                    errorMessage = `Cannot connect to server at ${apiUrl}. Please check: 1) Backend is running on Railway, 2) API URL is correct in index.html (should be your Railway URL, not Render), 3) Backend allows CORS from your frontend domain.`;
+                    errorMessage = `Cannot connect to backend at ${apiUrl}. Please check: 1) Backend is running on Render, 2) Backend URL is correct, 3) Backend allows CORS from Vercel domain (${window.location.origin}). Check browser console for more details.`;
                 } else if (error.message.includes('CORS')) {
-                    errorMessage = 'CORS error. Please check backend CORS configuration allows requests from your frontend domain.';
+                    errorMessage = 'CORS error. Please check backend CORS configuration allows requests from your Vercel domain.';
                 } else {
                     errorMessage = `Error: ${error.message}`;
-                }
-                
-                // Additional warning if using Render URL
-                if (apiBaseUrl.includes('render.com') || apiBaseUrl.includes('onrender.com')) {
-                    errorMessage += ' (Note: API URL is still pointing to Render - update to Railway URL in index.html)';
                 }
                 
                 // Additional warning if using Render URL
